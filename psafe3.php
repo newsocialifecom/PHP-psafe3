@@ -19,7 +19,7 @@ class psafe3 {
 		$this->file = fopen($file, "r");
 		$tag = $this->readBytes(4);
 		if($tag != "PWS3")
-			exit("Not a valid Password Safe database");
+			throw new Exception("Not a valid Password Safe database");
 		$this->salt = $this->readBits(256);
 		$this->iterations = $this->readBits(32);
 		$this->iterations = $this->unpackLittleEndian($this->iterations);
@@ -27,7 +27,7 @@ class psafe3 {
 		$this->shaps = $this->sha256($this->shaps);
 		$fileshaps = $this->readBytes(32);
 		if($fileshaps != $this->shaps)
-			exit("Wrong password inputted");
+			throw new Exception("Wrong password inputted");
 		$this->b1 = $this->readBits(128);
 		$this->b2 = $this->readBits(128);
 		$this->b3 = $this->readBits(128);
@@ -113,6 +113,9 @@ class psafe3 {
 						$field["type"] = "Password Expire Policy";
 						$field["raw"] = $this->unpackLittleEndian($field["raw"]);
 					break;
+					case 0x14:
+						$field["type"] = "E-mail";
+					break;
 				}
 				$record[$field["type"]] = $field["raw"];
 			}
@@ -164,7 +167,7 @@ class psafe3 {
 	function readField($header = "") {
 		$data = $this->readBytes(16);
 		if(!$data || strlen($data) < 16)
-			exit("Error parsing field");
+			throw new Exception("Error parsing field");
 		if($data == "PWS3-EOFPWS3-EOF") // EOF
 			return 0;
 		$data = $this->decrypt($data);
@@ -177,7 +180,7 @@ class psafe3 {
 			for($i = 0; $i < $step; $i++) {
 				$data = $this->readBytes(16);
 				if(!$data || strlen($data) < 16)
-					exit("Error parsing field");
+					throw new Exception("Error parsing field");
 				$raw .= $this->decrypt($data);
 			}
 		}
