@@ -113,6 +113,9 @@ class psafe3 {
 						$field["type"] = "Password Expire Policy";
 						$field["raw"] = $this->unpackLittleEndian($field["raw"]);
 					break;
+					case 0x14:
+						$field["type"] = "E-mail";
+					break;
 				}
 				$record[$field["type"]] = $field["raw"];
 			}
