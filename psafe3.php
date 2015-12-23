@@ -113,8 +113,32 @@ class psafe3 {
 						$field["type"] = "Password Expire Policy";
 						$field["raw"] = $this->unpackLittleEndian($field["raw"]);
 					break;
+					case 0x12:
+						$field["type"] = "Run Command";
+					break;
+					case 0x13:
+						$field["type"] = "Double-Click Action";
+						$field["raw"] = $this->getAction($field["raw"]);
+					break;
 					case 0x14:
-						$field["type"] = "E-mail";
+						$field["type"] = "EMail address";
+					break;
+					case 0x15:
+						$field["type"] = "Protected Entry";
+						$field["raw"] = ($field["raw"] > 0 ? true : false);
+					break;
+					case 0x16:
+						$field["type"] = "Own symbols for password";
+					break;
+					case 0x17:
+						$field["type"] = "Shift Double-Click Action";
+						$field["raw"] = $this->getAction($field["raw"]);
+					break;
+					case 0x18:
+						$field["type"] = "Password Policy Name";
+					break;
+					case 0x19:
+						$field["type"] = "Entry keyboard shortcut";
 					break;
 				}
 				$record[$field["type"]] = $field["raw"];
@@ -186,5 +210,27 @@ class psafe3 {
 		}
 		$raw = substr($raw, 0, $len);
 		return ["type" => $type, "raw" => $raw];
-	}	
+	}
+
+	public function getAction($actionNumber)
+	{
+
+		$data = array(0 => "Copy Password",
+					  1 => "View / Edit",
+					  2 => "AutoType",
+					  3 => "Browse",
+					  4 => "Copy Notes",
+					  5 => "Copy Username",
+					  6 => "Copy Password Minimize",
+					  7 => "Browse Plus",
+					  8 => "Run Command",
+					  9 => "Send email");
+
+		if (array_key_exists($actionNumber, $data) == false)
+		{
+			return ("Unknown action : " . $actionNumber);
+		}
+
+		return $data[$actionNumber];
+	}
 }
